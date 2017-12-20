@@ -26,10 +26,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
-import edu.stanford.hivdb.mutations.Gene;
+import edu.stanford.hivdb.mutations.FrameShift;
 import edu.stanford.hivdb.testutils.TestSequencesFiles;
 import edu.stanford.hivdb.testutils.TestSequencesFiles.TestSequencesProperties;
 import edu.stanford.hivdb.utilities.MyFileUtils;
+import edu.stanford.hivdb.utilities.PrettyPairwise;
 import edu.stanford.hivdb.utilities.FastaUtils;
 import edu.stanford.hivdb.utilities.Sequence;
 
@@ -47,23 +48,21 @@ public class PrettyPairwiseTest {
 
 		StringBuilder output = new StringBuilder();
 		for (Sequence seq : sequences) {
-			for (Gene gene : Gene.values()) {
-				AlignedGeneSeq alignedGeneSeq = Aligner.alignGeneToSequence(gene,  seq);
-				if (alignedGeneSeq != null) {
-					PrettyPairwise prettyPairwise = PrettyPairwise.createPrettyAlignment(gene, alignedGeneSeq);
-					List<String> positionHeader = prettyPairwise.getPositionLine();
-					List<String> referenceAAs = prettyPairwise.getRefAALine();
-					List<String> alignedNAs = prettyPairwise.getAlignedNAsLine();
-					List<String> mutationLine = prettyPairwise.getMutationLine();
-					output.append(seq.getHeader() + "\n");
-					output.append(alignedGeneSeq.getMutationListString() + "\n");
-					output.append(FrameShift.getHumanReadableList(alignedGeneSeq.getFrameShifts()) + "\n");
-					output.append(joinCodonsWithSpaces(positionHeader, 2) + "\n");
-					output.append(joinCodonsWithSpaces(referenceAAs, 2) + "\n");
-					output.append(joinCodonsWithSpaces(alignedNAs, 2) + "\n");
-					output.append(joinCodonsWithSpaces(mutationLine, 2) + "\n");
-					output.append("\n\n");
-				}
+			AlignedSequence alignedSeq = Aligner.align(seq);
+			for (AlignedGeneSeq alignedGeneSeq : alignedSeq.getAlignedGeneSequences()) {
+				PrettyPairwise prettyPairwise = alignedGeneSeq.getPrettyPairwise();
+				List<String> positionHeader = prettyPairwise.getPositionLine();
+				List<String> referenceAAs = prettyPairwise.getRefAALine();
+				List<String> alignedNAs = prettyPairwise.getAlignedNAsLine();
+				List<String> mutationLine = prettyPairwise.getMutationLine();
+				output.append(seq.getHeader() + "\n");
+				output.append(alignedGeneSeq.getMutationListString() + "\n");
+				output.append(FrameShift.getHumanReadableList(alignedGeneSeq.getFrameShifts()) + "\n");
+				output.append(joinCodonsWithSpaces(positionHeader, 2) + "\n");
+				output.append(joinCodonsWithSpaces(referenceAAs, 2) + "\n");
+				output.append(joinCodonsWithSpaces(alignedNAs, 2) + "\n");
+				output.append(joinCodonsWithSpaces(mutationLine, 2) + "\n");
+				output.append("\n\n");
 			}
 		}
 		MyFileUtils.writeFile(OUTPUT_FILE, output.toString());

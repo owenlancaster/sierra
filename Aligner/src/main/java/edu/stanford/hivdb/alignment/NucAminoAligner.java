@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import com.google.gson.reflect.TypeToken;
 
+import edu.stanford.hivdb.mutations.FrameShift;
 import edu.stanford.hivdb.mutations.Gene;
 import edu.stanford.hivdb.mutations.Mutation;
 import edu.stanford.hivdb.utilities.FastaUtils;
@@ -53,8 +54,6 @@ import edu.stanford.hivdb.utilities.Sequence;
  *
  */
 public class NucAminoAligner {
-	private static final String NUCAMINO_PROGRAM_PATH = "NUCAMINO_PROGRAM";
-
 	private static final int INDEL_CODON_OPENING_BONUS = 0;
 	private static final int INDEL_CODON_EXTENSION_BONUS = 2;
 	private static final int STOP_CODON_PENALTY = 4;
@@ -468,7 +467,7 @@ public class NucAminoAligner {
 	 * @return cmd.toString()
 	 */
 	private static String[] generateCmd() {
-		String executable = System.getenv(NUCAMINO_PROGRAM_PATH);
+		String executable = System.getenv("NUCAMINO_PROGRAM");
 		if (executable == null) {
 			// use "nucamino" as default program path
 			executable = "nucamino";
